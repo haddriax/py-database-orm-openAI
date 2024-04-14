@@ -81,7 +81,7 @@ class Studies(Base):
     opened_at: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=True, default=None)
     closed_at: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=True, default=None)
     result_last_download_time: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=True, default=None)
-    result_last_download_by: Mapped[int] = mapped_column(Integer)
+    fk_result_last_download_by: Mapped[int] = mapped_column(Integer, ForeignKey('admin_users.id'), nullable=True, default=None)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now, nullable=False)
 
     basic_settings = relationship('StudyBasicSettings')
@@ -90,6 +90,7 @@ class Studies(Base):
     ui_settings = relationship('StudyUiSettings')
     opened_by = relationship('AdminUsers', foreign_keys=[fk_opened_by])
     closed_by = relationship('AdminUsers', foreign_keys=[fk_closed_by])
+    result_last_download_by = relationship('AdminUsers', foreign_keys=[fk_result_last_download_by])
 
 
 class Sources(Base):
