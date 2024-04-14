@@ -45,9 +45,6 @@ study = Studies(
     fk_opened_by=opened_by.id,
     fk_closed_by=closed_by.id,
     opened_at=datetime.now(timezone.utc),
-    closed_at=None,
-    result_last_download_time=None,
-    result_last_download_by=None
 )
 
 session.add(study)
