@@ -2,6 +2,7 @@ from openai import OpenAI
 from dotenv import load_dotenv, dotenv_values
 from database_py.models.db_model import Posts
 
+# Load API-KEY from a .env file.
 load_dotenv()
 
 
@@ -25,30 +26,34 @@ class PostDetails:
         pass
 
 
-def generate_post(post_details: PostDetails) -> Posts:
+def generate_post(post_details: PostDetails, verbose=False) -> Posts:
     """
     Uses OpenAI API to generate a post with random content and matching title.
+    :param verbose: Print debugging information about the prompts and results.
     :param post_details: PostDetails that holds information about the post creation.
    :return: A newly created and filled Post
    """
     ai_instruction_title = (
         (post_details.force_title if (post_details.force_title is not None)
          else
-         "Generate the title, and only the title, of a social media post. The content must be {is_true}. The post "
-         "must be informative.".format(is_true=post_details.is_info_true)))
+         "Generate the title, and only the title, of a social media post. The content must be {is_true}. The post"
+         " must be informative.".format(is_true=post_details.is_info_true)))
 
     role = ""
-    print("Title prompt: {}".format(ai_instruction_title))
+    if verbose:
+        print("Title prompt: {}".format(ai_instruction_title))
     client = OpenAI()
 
     completion_headline = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": role},
+            #{"role": "system", "content": role},
             {"role": "user", "content": ai_instruction_title},
         ]
     )
-    print(completion_headline.choices[0].message.content)
+
+    if verbose:
+        print(completion_headline.choices[0].message.content)
 
     ai_instruction_content = ((
         "Generate the content of a social media post based on this title: {title}. The "
@@ -64,13 +69,14 @@ def generate_post(post_details: PostDetails) -> Posts:
     completion_content = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "system", "content": role},
+            #{"role": "system", "content": role},
             {"role": "user", "content": ai_instruction_content},
         ]
     )
-    print("\n")
-    print("Content prompt: {}".format(ai_instruction_content))
-    print(completion_content.choices[0].message.content)
+    if verbose:
+        print("\n")
+        print("Content prompt: {}".format(ai_instruction_content))
+        print(completion_content.choices[0].message.content)
 
     post_model = Posts(
         ms_id='0',
@@ -92,6 +98,4 @@ def generate_post(post_details: PostDetails) -> Posts:
     return post_model
 
 
-post = generate_post(PostDetails(is_info_true=False, no_hashtag=False))
-print("\nPost headline:  "+post.headline)
-print("Post content: "+post.content)
+post = generate_post(PostDetails(is_info_true=False, no_hashtag=False), True)
