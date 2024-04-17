@@ -1,4 +1,5 @@
 from sqlalchemy import Integer, String, Boolean, TIMESTAMP, ForeignKey, ForeignKeyConstraint
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import relationship, mapped_column, Mapped, DeclarativeBase
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
@@ -81,7 +82,8 @@ class Studies(Base):
     opened_at: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=True, default=None)
     closed_at: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=True, default=None)
     result_last_download_time: Mapped[datetime] = mapped_column(TIMESTAMP, nullable=True, default=None)
-    fk_result_last_download_by: Mapped[int] = mapped_column(Integer, ForeignKey('admin_users.id'), nullable=True, default=None)
+    fk_result_last_download_by: Mapped[int] = mapped_column(Integer, ForeignKey('admin_users.id'), nullable=True,
+                                                            default=None)
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now, nullable=False)
 
     basic_settings = relationship('StudyBasicSettings')
@@ -147,6 +149,22 @@ class Posts(Base):
 
     linked_study = relationship('Studies')
     source = relationship('Sources')
+
+    @staticmethod
+    def get_by_id(session, posts_id):
+        post = None
+        try:
+            post = session.query(Posts).join(Studies).join(Sources).filter(Posts.id == posts_id).first()
+        except SQLAlchemyError as e:
+            error = str(e.__dict__['orig'])
+            print(error)
+            return None
+        return post
+
+    @staticmethod
+    def insert(session, study: Studies):
+        session.add(study)
+        return 1
 
 
 class PostsInteractions(Base):
