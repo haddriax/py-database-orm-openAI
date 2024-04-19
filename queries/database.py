@@ -29,7 +29,7 @@ def execute_query(connection, query):
 
 
 def create_database(db_connection):
-    with open('sql_sources/create-database.sql', 'r') as file:
+    with open('../sql_sources/create-database.sql', 'r') as file:
         sql_command = file.read()  # .replace('\n', '')
     execute_query(db_connection, sql_command)
 
@@ -37,7 +37,7 @@ def create_database(db_connection):
 def create_settings_basic(connection, name, description, prompt, length, require_reactions, require_comments, require_identification):
     table_name = "study_basic_settings"
     sql_instruction = ""
-    with open('sql_sources/insertion-queries.sql', 'r') as file:
+    with open('../sql_sources/insertion-queries.sql', 'r') as file:
         sql_instruction = file.read().replace('\n', '')
     print(sql_instruction)
     sql_instruction = sql_instruction.format(name=name,
@@ -57,7 +57,7 @@ def create_post(connection, ms_id, fk_linked_study, headline, content, is_true_f
                 changes_to_credibility_on_flag, number_of_reactions, source_id, created_at):
     table_name = "posts"
     sql_instruction = ""
-    with open('sql_sources/insertion-queries.sql', 'r') as file:
+    with open('../sql_sources/insertion-queries.sql', 'r') as file:
         sql_instruction = file.read().replace('\n', '')
 
     sql_instruction = sql_instruction.format(ms_id=ms_id,
@@ -81,7 +81,7 @@ def create_post(connection, ms_id, fk_linked_study, headline, content, is_true_f
 
 
 db_connection = create_connection(
-    "database_01", "postgres", "password", "127.0.0.1", "5432"
+    "database_2", "postgres", "password", "127.0.0.1", "5432"
 )
 
 # create_settings_basic(connection=db_connection,
@@ -93,7 +93,7 @@ db_connection = create_connection(
 #                       require_comments="0",
 #                       require_identification="0")
 
-create_post(db_connection, 'ms123', 'null', 'Headline', 'Content', True,
-            5, 3, 2, 1,
-            10, 5, 3,
-            2, 15, 'null', '2024-04-11 12:00:00')
+# create_post(db_connection, 'ms123', 'null', 'Headline', 'Content', True,
+#             5, 3, 2, 1,
+#             10, 5, 3,
+#             2, 15, 'null', '2024-04-11 12:00:00')

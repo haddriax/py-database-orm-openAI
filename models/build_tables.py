@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_py.models.db_model import Base
+from models.db_model import Base
 
 db_engine = create_engine('postgresql://postgres:password@localhost/database_2')
 # Build all the table from our models.

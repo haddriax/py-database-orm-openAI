@@ -2,7 +2,7 @@ from random import randrange
 
 from openai import OpenAI
 from dotenv import load_dotenv
-from database_py.models.db_model import Posts
+from models.db_model import Posts
 
 # Load API-KEY from a .env file.
 load_dotenv()
@@ -57,7 +57,7 @@ class PostDetails:
         self.ai_model = "gpt-3.5-turbo"
         self.is_info_true = True if randrange(100) <= is_true_percentage else False
         self.theme = (specific_theme if specific_theme is not None
-                      else PostDetails.available_themes[randrange(len(PostDetails.available_themes))])
+                      else PostDetails.available_themes[randrange(len(PostDetails.available_themes)-1)]) # @todo check -1
         pass
 
 
@@ -92,7 +92,7 @@ def generate_post(post_details: PostDetails, verbose=False) -> Posts:
         print("\033[92mTitle prompt:\033[0m\n{}".format(ai_instruction_title))
         print("\033[92mHeadline:\n\033[0m\033[1m{}\033[0m".format(completion_headline.choices[0].message.content))
 
-    # Preparing the content prompt based on our parameters.
+    # Preparing the content prompt based on our parameters and the result of the title prompt.
     ai_instruction_content = ((
         "Generate the content of a social media post based on this title: \033[1m{title}\033[0m. The "
         "content must be \033[1m{is_true}\033[0m. The post"
