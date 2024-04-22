@@ -22,5 +22,5 @@ def build_posts(amount: int, upload: bool):
     session.close()
 
 
-number_of_post_to_create = 10
-build_posts(number_of_post_to_create)
+number_of_post_to_create = 6
+build_posts(number_of_post_to_create, True)

@@ -20,18 +20,11 @@ ModelType = TypeVar('ModelType', bound=DatabaseBaseClass)
 
 def get_by_id(session, table_class: Type[ModelType], query_id, jointures=None) -> Optional[ModelType]:
     """
-    :param session: The active session object
+    :param session: The active SQLAlchemy session object
     :param table_class: The class representing the database table to query
-    :param query_id: The id to use for the query
+    :param query_id: The id of the row to be retrieved
     :param jointures: Optional list of tables to join with the main table
     :return: The queried row as an instance of the table_class, or None if an error occurred
-
-    This method queries the database to retrieve a row from the specified table by its id. The session object should
-    be an active SQLAlchemy session, and the table_class should be a SQLAlchemy model class representing the table.
-    The query_id parameter specifies the id of the row to be retrieved.
-    If the jointures parameter is provided, it should be a list of tables to join with the main table in the query.
-    The method returns the queried row as an instance of the table_class, or None if an error occurred during the
-    query. An AssertionError is raised if the query_id is not greater than 0.
     """
     assert query_id > 0, 'id must be greater than 0'
     try:
@@ -242,15 +235,18 @@ class Posts(DatabaseBaseClass):
     headline: Mapped[str] = mapped_column(String)
     content: Mapped[str] = mapped_column(String)
     is_true_fact: Mapped[bool] = mapped_column(Boolean)
-    changes_to_follower_on_like: Mapped[int] = mapped_column(Integer)
-    changes_to_follower_on_dislike: Mapped[int] = mapped_column(Integer)
-    changes_to_follower_on_share: Mapped[int] = mapped_column(Integer)
-    changes_to_follower_on_flag: Mapped[int] = mapped_column(Integer)
-    changes_to_credibility_on_like: Mapped[int] = mapped_column(Integer)
-    changes_to_credibility_on_dislike: Mapped[int] = mapped_column(Integer)
-    changes_to_credibility_on_share: Mapped[int] = mapped_column(Integer)
-    changes_to_credibility_on_flag: Mapped[int] = mapped_column(Integer)
-    number_of_reactions: Mapped[int] = mapped_column(Integer)
+    number_of_likes: Mapped[int] = mapped_column(Integer, default=0)  # Likes shown when post is presented
+    number_of_dislike: Mapped[int] = mapped_column(Integer, default=0)  # Dislikes shown when post is presented
+    number_of_shared: Mapped[int] = mapped_column(Integer, default=0)  # Shares shown when post is presented
+    number_of_flagged: Mapped[int] = mapped_column(Integer, default=0)  # Flags shown when post is presented
+    changes_to_follower_on_like: Mapped[int] = mapped_column(Integer, default=0)
+    changes_to_follower_on_dislike: Mapped[int] = mapped_column(Integer, default=0)
+    changes_to_follower_on_share: Mapped[int] = mapped_column(Integer, default=0)
+    changes_to_follower_on_flag: Mapped[int] = mapped_column(Integer, default=0)
+    changes_to_credibility_on_like: Mapped[int] = mapped_column(Integer, default=0)
+    changes_to_credibility_on_dislike: Mapped[int] = mapped_column(Integer, default=0)
+    changes_to_credibility_on_share: Mapped[int] = mapped_column(Integer, default=0)
+    changes_to_credibility_on_flag: Mapped[int] = mapped_column(Integer, default=0)
     fk_source_id: Mapped[int] = mapped_column(Integer, ForeignKey('sources.id'))
     created_at: Mapped[datetime] = mapped_column(TIMESTAMP, default=datetime.now, nullable=False)
 
@@ -262,7 +258,7 @@ class Posts(DatabaseBaseClass):
         return get_by_id(session, Posts, post_id, {Studies, Sources})
 
     @staticmethod
-    def get_all_posts_by_study_id(session, study_id):
+    def get_all_by_study_id(session, study_id):
         """Retrieve all posts matching a study ID.
 
         :param session: The database session.
@@ -291,8 +287,9 @@ class PostsInteractions(DatabaseBaseClass):
     reaction_type: Mapped[str] = mapped_column(String)
     flagged: Mapped[bool] = mapped_column(Boolean)
     shared: Mapped[bool] = mapped_column(Boolean)
-    first_time_to_interact_ms: Mapped[int] = mapped_column(Integer)
-    last_interaction_time_ms: Mapped[int] = mapped_column(Integer)
+    fk_comment_id: Mapped[int] = mapped_column(Integer, ForeignKey('comments.id'), nullable=True, default=None)
+    first_time_to_interact_ms: Mapped[int] = mapped_column(Integer, default=-1)
+    last_interaction_time_ms: Mapped[int] = mapped_column(Integer, default=-1)
     user_follower_before: Mapped[int] = mapped_column(Integer)
     user_follower_after: Mapped[int] = mapped_column(Integer)
     user_credibility_before: Mapped[int] = mapped_column(Integer)
@@ -301,12 +298,13 @@ class PostsInteractions(DatabaseBaseClass):
 
     participant = relationship('Participants')
     post = relationship('Posts')
+    comment = relationship('Comments')
 
-    # @TODO refactor this with to get all matching foreign keys for a function.
     @staticmethod
     def get_by_id(session, interaction_id):
         return get_by_id(session, PostsInteractions, interaction_id)
 
+    # @TODO refactor this with to get all matching foreign keys for a function.
     @staticmethod
     def get_all_by_post_id(session, post_id):
         """Retrieve all posts interactions matching a post ID.

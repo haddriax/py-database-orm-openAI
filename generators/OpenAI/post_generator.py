@@ -122,6 +122,10 @@ def generate_post(post_details: PostDetails, verbose=False) -> Posts:
         headline=completion_headline.choices[0].message.content,
         content=completion_content.choices[0].message.content,
         is_true_fact=post_details.is_info_true,
+        number_of_likes=10,
+        number_of_dislike=12,
+        number_of_shared=0,
+        number_of_flagged=0,
         changes_to_follower_on_like=10,
         changes_to_follower_on_dislike=10,
         changes_to_follower_on_share=5,
@@ -130,7 +134,6 @@ def generate_post(post_details: PostDetails, verbose=False) -> Posts:
         changes_to_credibility_on_dislike=12,
         changes_to_credibility_on_share=25,
         changes_to_credibility_on_flag=18,
-        number_of_reactions=144,
         fk_source_id=1
     )
     return post_model
